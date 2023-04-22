@@ -76,44 +76,31 @@
 <ul id='listofitems'></ul>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.5/axios.min.js"></script>
     <script>
-       function saveToLocalStorage(event){
-            event.preventDefault();
-            var name=event.target.fname.value
-            var lastName=event.target.lname.value
-            var emailId=event.target.email.value
-            var doo=event.target.dob.value
-            var pNo=event.target.phone.value
+        function updateFromCrud(event){
+    event.preventDefault()
+    const name = event.target.username.value
+    const email = event.target.mail.value
+    const phone = event.target.phno.value
 
+    const obj = {
+        name,
+        email,
+        phone
+    }
 
-            /*localStorage.setItem('fname', name)
-            localStorage.setItem('lname', lastName)
-            localStorage.setItem('email',emailId)
-            localStorage.setItem('DOB',dob)
-            localStorage.setItem('phone',pNo);//over 10T*/
-
-            //11. adding deatils in js object way
-            const obj={
-                name,
-                lastName,
-                emailId, 
-                pNo,
-                doo
-            }
-            axios.post("https://crudcrud.com/api/c0b49a3e6002474783547b9aa12c9511/appointmentData",obj)
-                .then((respone) => {
-                    showNewUserOnScreen(respone.data)
-                    console.log(respone)
+    axios.post('https://crudcrud.com/api/273a6a0bbec843fc9bbaf14809ae6319/studentdetails', obj )
+                .then((response) => {
+                    showUserOnScreen(response.data)
+                     console.log(response.data)
                 })
-                .catch((err) => {  
-                    console.log(err)
-                })
-            //localStorage.setItem(obj.emailId,JSON.stringify(obj));
-            //showUserOnScreen(obj);
-        }   
-        window.addEventListener('DOMContentLoaded', () =>{
-        axios.get("https://crudcrud.com/api/c0b49a3e6002474783547b9aa12c9511/appointmentData")
+                .catch(error => console.log(error))
+
+}
+
+    window.addEventListener('DOMContentLoaded', () =>{
+        axios.get('https://crudcrud.com/api/c0b49a3e6002474783547b9aa12c9511/appointmentData')
         .then((res) => {
-            console.log(res)
+            console.log(res.data)
             for (var i = 0; i< res.data.length ; i++){
                 showUserOnScreen(res.data[i])
             }
@@ -121,30 +108,41 @@
         .catch((err) => {console.log(err)})
     })
 
-         function showUserOnScreen(obj)
-           {
-               const parentElemnt=document.getElementById('listofitems')
-                const childE=document.createElement('li')
-                childE.textContent=obj.name+" - "+obj.lastName+" - "+obj.emailId+" - "+obj.pNo+" - "+obj.doo
-                parentElemnt.appendChild(childE)
-                //parentnode.innerHTML=parentnode.innerHTML+child
-              //parentElemnt.innerHTML = parentElemnt.innerHTML+ `<li>${obj.name} - ${obj.lastName}-${obj.emailId}-${obj.doo}-${obj.pNo}</li>`
-          
-             //create delete button....13T
-             //adding delete button 
-             const deletButton=document.createElement('input')
-             deletButton.type="button";
-             deletButton.value="Delete";
-             deletButton.onclick=()=>
-             {
-                 //localStorage.removeItem(obj.emailId)
-                 parentElemnt.removeChild(childE)
-             } 
 
-             childE.appendChild(deletButton)
-             parentElemnt.appendChild(childE)
-          
-            }
+    function showUserOnScreen(user){
+
+        document.getElementById('name').value = ''
+        document.getElementById('mail').value = ''
+        document.getElementById('phno').value = ''
+        const parent = document.getElementById('listofusers')
+        const child = `<li id = ${user._id}> ${user.name} - ${user.email} -${user.phone}  <button onclick=editUser('${user.email}','${user.name}','${user.phone}','${user._id}') style = "border : 3px solid green;">Edit </button> <button onclick=deleteUser('${user._id}') style = "border : 3px solid red;">Delete</button> </li> <br>`
+        parent.innerHTML = parent.innerHTML + child 
+    }
+
+    function deleteUser(userId){ 
+       axios.delete(`https://crudcrud.com/api/c0b49a3e6002474783547b9aa12c9511/appointmentData/${userId}`)
+       .then(() => {
+            removeUserFromScreen(userId)
+       }).catch(err => console.log(err))
+    }
+
+    function removeUserFromScreen(userId){
+        let parent = document.getElementById('listofusers')
+        let childToBeDeleted = document.getElementById(userId)
+        parent.removeChild(childToBeDeleted)
+    }
+
+    function editUser(email, name, lastName, dob, phone) {
+        document.getElementById("fname").value = name;
+        document.getElementById("lname").value = lastName;
+        document.getElementById("email").value = email;
+        document.getElementById("birthday").value = dob;
+        document.getElementById("phone").value = phone;
+    }
+
+    
+       
+
         
 
         //thz ws store the userdetails it in localStorage
