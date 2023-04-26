@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>hotel</title>
+</head>
+<body>
+    <h1>Orders</h1>
+    <form onsubmit="savetocrud(event)">
+        <label>Choose Price :</label>
+        <input type="number" id="price" name="price" required> <br><br>
+        <label>Choose Dish :</label>
+        <input type="text" id="dish" name="dish" required> <br> <br>
+        <label for="table">Choose Table :</label>
+        <select id="table" name="table">
+            <option value="table1">Table 1</option>
+            <option value="table2">Table 2</option>
+            <option value="table3">Table 3</option>
+            <option value="table4">Table 4</option>
+        </select> <br><br>
+        <input type="submit" value="Add">
+    </form>
+    <h1>Orders</h1><br><br>
+    <h2>Table 1</h2><br></br>
+    <ul id='table1'></ul>
+    <h2>Table 2</h2><br></br>
+    <ul id='table2'></ul>
+    <h2>Table 3</h2><br></br>
+    <ul id='table3'></ul>
+    <h2>Table 4</h2><br></br>
+    <ul id='table4'></ul>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
+    <script>
+        function savetocrud(event){
+            event.preventDefault()
+            const price = event.target.price.value
+            const dish = event.target.dish.value
+            const table = event.target.table.value 
+
+            const obj = {
+                price,
+                dish,
+                table
+            }
+
+            axios.post('https://crudcrud.com/api/914e375ac6e1466faa122e59d5240ad1/hotelorders', obj)
+            .then((res) => {
+                showOnScreen(res.data)
+            })
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            axios.get('https://crudcrud.com/api/914e375ac6e1466faa122e59d5240ad1/hotelorders')
+            .then((res) => {
+                console.log(res.data)
+
+                for( let i= 0; i< res.data.length ; i++){
+                    showOnScreen(res.data[i])
+                }
+            })
+            .catch(err => console.log(err))
+        })
+
+        function showOnScreen(user){
+            document.getElementById('price').value = ''
+            document.getElementById('dish').value = ''
+            document.getElementById('table').value = ''
+
+            const parent = document.getElementById(user.table)
+            const child = `<li id=${user._id}> ${user.price} - ${user.dish} - ${user.table} <button onclick= editOrder('${user.price}','${user.dish}','${user.table}','${user._id}')> Edit Order </button> <button onclick = deleteOrder('${user._id}','${user.table}')> Delete Order </button> </li>`
+            parent.innerHTML = parent.innerHTML + child 
+        } 
+
+        function deleteOrder(userid, table){
+            axios.delete(`https://crudcrud.com/api/914e375ac6e1466faa122e59d5240ad1/hotelorders/${userid}`)
+            .then(() => {
+                removeFromScreen(userid,table)
+            })
+            .catch(err => console.log(err))
+        }
+
+        function removeFromScreen(userid, table){
+            const parent = document.getElementById(table)
+            const child = document.getElementById(userid)
+            parent.removeChild(child)
+        }
+
+        function editOrder(price,dish,table,userid){
+            document.getElementById('price').value = price
+            document.getElementById('dish').value = dish
+            document.getElementById('table').value = table
+
+            deleteOrder(userid,table)
+        }
+    </script>
+</body>
+</html>
